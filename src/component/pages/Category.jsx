@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
-import { API_URL } from '../config';
+import { API_URL, LIVE_URL } from '../config';
 
 export default function Category({ vCatId: _id }) {
     const [Category, setCategory] = useState([]);
@@ -21,7 +21,7 @@ export default function Category({ vCatId: _id }) {
     }, []);
 
     const fetchData = () => {
-        axios.post(`${API_URL}category/list`).then(response => {
+        axios.post(`${ LIVE_URL }category/list`).then(response => {
             console.log("category data ===>", response.data.data);
             setCategory(response.data.data);
         }).catch(error => {
@@ -45,13 +45,13 @@ export default function Category({ vCatId: _id }) {
         try {
             if (isUpdating) {
                 updateData.append('vCatId', currentCategoryId); // Append the currentCategoryId to FormData
-                await axios.put(`${API_URL}category/details`, updateData, {
+                await axios.put(`${LIVE_URL}category/details`, updateData, {
                     headers: {
                         'Content-Type': 'multipart/form-data'
                     }
                 });
             } else {
-                await axios.post(`${API_URL}category/details`, formData, {
+                await axios.post(`${LIVE_URL}category/details`, formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data'
                     }
@@ -76,7 +76,7 @@ export default function Category({ vCatId: _id }) {
     };
 
     const handleDelete = () => {
-        axios.delete(`${API_URL}category/details`, {
+        axios.delete(`${LIVE_URL}category/details`, {
             data: { vCatId: deleteCategoryId },
             headers: {
                 'Content-Type': 'application/json'
@@ -103,9 +103,9 @@ export default function Category({ vCatId: _id }) {
             vName: category.vName,
             // vStartColor: category.vStartColor,
             // vEndColor: category.vEndColor,
-            vIcon: null, // We can't set the file input value
+            // vIcon: null, // We can't set the file input value
         });
-        setPreview(`http://192.168.29.124:5000/${category.vIcon}`);
+        setPreview(`http://143.244.139.153:5000/${category.vIcon}`);
         setIsUpdating(true);
         setCurrentCategoryId(category._id);
     };
@@ -190,7 +190,7 @@ export default function Category({ vCatId: _id }) {
                                         <tr key={item._id}>
                                             <td>{id + 1}</td>
                                             <td>
-                                                <img crossorigin="anonymous" src={`http://192.168.29.124:5000/${item.vIcon}`} alt={item.vName} className='img-fluid category-icon' />
+                                                <img crossOrigin="anonymous" src={`http://143.244.139.153:5000/${item.vIcon}`} alt={item.vName} className='img-fluid category-icon' />
                                             </td>
                                             <td>{item.vName}</td>
                                             <td>
