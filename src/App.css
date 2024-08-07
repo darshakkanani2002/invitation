@@ -1,0 +1,63 @@
+/* .App {
+  display: flex;
+} */
+
+.sidebar {
+  width: 250px;
+  text-align: center;
+  height: 100vh;
+  background-color: aliceblue;
+  box-shadow: 0px 6px 15px 0px #d8d8d8;
+}
+
+.side-menu li a {
+  text-decoration: none;
+  color: #000;
+}
+
+/* Header css */
+.header-dash {
+  width: 100%;
+  background-color: #fff;
+  box-shadow: 0px 6px 15px 0px #d8d8d8;
+}
+
+/* Main content css */
+.content {
+  /* width: 100%; */
+  margin-left: 250px !important;
+}
+
+@media (max-width:768px) {
+  .content {
+    margin-left: 0px !important;
+  }
+}
+
+/* category-table */
+.table-height {
+  height: 460px !important;
+  overflow-y: scroll;
+}
+
+.category-table td {
+  vertical-align: middle;
+}
+
+.category-table th,
+td {
+  border: 1px solid #000 !important;
+  text-align: center;
+  padding: 8px 0px !important;
+}
+
+/*  */
+.category-select-icon {
+  height: 90px;
+  width: 90px;
+}
+
+.category-icon {
+  height: 50px;
+  width: 50px;
+}
