@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Select from 'react-select';
-import { API_URL } from '../config';
+import { API_URL, LIVE_URL } from '../config';
 
 export default function Post({ vTemplateId: _id }) {
     const [categories, setCategories] = useState([]);
@@ -15,14 +15,22 @@ export default function Post({ vTemplateId: _id }) {
         vDiscription: '', // Single string for JSON-like input
         vCatId: '',
     });
-    const [deleteCategoryId, setDeleteCategoryId] = useState(null);
+    const [objectURLs, setObjectURLs] = useState({});
+
     useEffect(() => {
         loadOptions();
     }, []);
 
+    useEffect(() => {
+        // Clean up object URLs on component unmount
+        return () => {
+            Object.values(objectURLs).forEach(url => URL.revokeObjectURL(url));
+        };
+    }, [objectURLs]);
+
     const fetchData = async (vCatId) => {
         try {
-            const response = await axios.post(`${API_URL}template/frameBycatId`, { vCatId });
+            const response = await axios.post(`${LIVE_URL}template/frameBycatId`, { vCatId });
             console.log("Post fetch Data ===>", response.data.data);
             setPosts(response.data.data);
         } catch (error) {
@@ -44,6 +52,7 @@ export default function Post({ vTemplateId: _id }) {
 
     const handleCheckboxChange = (e) => {
         const { name, checked } = e.target;
+        console.log(`Checkbox ${name} changed to ${checked}`);
         setPostData(prevState => ({
             ...prevState,
             [name]: checked
@@ -58,36 +67,38 @@ export default function Post({ vTemplateId: _id }) {
         }));
     };
 
-    const handleFileChange = async (e) => {
+    const handleFileChange = (e) => {
         const file = e.target.files[0];
-        const base64 = await fileToBase64(file);
+        if (!file) return;
 
+        // Create object URL for preview
+        const objectURL = URL.createObjectURL(file);
+
+        // Set object URL to state
         setPostData(prevState => ({
             ...prevState,
-            [e.target.name]: base64
+            [e.target.name]: objectURL
         }));
-    };
 
-    const fileToBase64 = (file) => {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => resolve(reader.result);
-            reader.onerror = (error) => reject(error);
-            reader.readAsDataURL(file);
-        });
+        // Store the object URL to clean up later
+        setObjectURLs(prevURLs => ({
+            ...prevURLs,
+            [e.target.name]: objectURL
+        }));
+
+        // Optionally, you can also upload the file here and store the uploaded URL if needed
     };
 
     const [options, setOptions] = useState([]);
     const loadOptions = async () => {
         try {
-            const response = await axios.post(`${API_URL}category/list`);
+            const response = await axios.post(`${LIVE_URL}category/list`);
             const data = response.data.data.map(category => ({
                 label: category.vName,
                 value: category._id, // Use _id as the value
                 id: category._id
             }));
             console.log(data);
-
             setOptions(data);
         } catch (error) {
             console.error('Error fetching options:', error);
@@ -124,7 +135,7 @@ export default function Post({ vTemplateId: _id }) {
         };
 
         try {
-            const response = await axios.post(`${API_URL}template/details`, data, {
+            const response = await axios.post(`${LIVE_URL}template/details`, data, {
                 headers: {
                     'Content-Type': 'application/json'
                 }
@@ -145,25 +156,17 @@ export default function Post({ vTemplateId: _id }) {
         }
     };
 
-    // const handleDelete = async (_id) => {
-    //     try {
-    //         await axios.delete(`${API_URL}template/details`, { vTemplateId });
-    //         setPosts(posts.filter(post => post._id !== id));
-    //     } catch (error) {
-    //         console.error('Error deleting data:', error);
-    //     }
-    // };
-    const handleDelete = () => {
-        axios.delete(`${API_URL}template/details`, {
-            data: { vTemplateId: deleteCategoryId },
+    const handleDelete = (id) => {
+        const vTemplateId = id.toString();
+        axios.delete(`${LIVE_URL}template/details`, {
+            data: { vTemplateId },
             headers: {
                 'Content-Type': 'application/json'
             }
         })
             .then(response => {
                 console.log("Category deleted successfully:", response.data);
-                fetchData();
-                setDeleteCategoryId(null);
+                fetchData(postData.vCatId); // Fetch data for the current category
             })
             .catch(error => {
                 console.error("Error deleting category:", error.response ? error.response.data : error.message);
@@ -199,7 +202,7 @@ export default function Post({ vTemplateId: _id }) {
                                 options={options}
                             ></Select>
                         </div>
-                        <div className='col-lg-6 pe-2 py-2'>
+                        <div className='col-lg-6 pe-2 py-2 mb-3'>
                             <label htmlFor="vThumbImage">Thumb Image</label>
                             <input
                                 type="file"
@@ -207,8 +210,11 @@ export default function Post({ vTemplateId: _id }) {
                                 name="vThumbImage"
                                 onChange={handleFileChange}
                             />
+                            {postData.vThumbImage && (
+                                <img src={postData.vThumbImage} alt="Thumb Preview" style={{ width: '100px', height: 'auto', marginTop: '10px' }} />
+                            )}
                         </div>
-                        <div className='col-lg-6 ps-2 py-2'>
+                        <div className='col-lg-6 ps-2 py-2 mb-3'>
                             <label htmlFor="vOriginalImage">Original Image</label>
                             <input
                                 type="file"
@@ -216,6 +222,9 @@ export default function Post({ vTemplateId: _id }) {
                                 name="vOriginalImage"
                                 onChange={handleFileChange}
                             />
+                            {postData.vOriginalImage && (
+                                <img src={postData.vOriginalImage} alt="Original Preview" style={{ width: '100px', height: 'auto', marginTop: '10px' }} />
+                            )}
                         </div>
                         <div className='col-lg-3 me-2'>
                             <div className="form-group">
@@ -223,6 +232,7 @@ export default function Post({ vTemplateId: _id }) {
                                     <input
                                         type="checkbox"
                                         name="isTrending"
+                                        className='post-input-checkbox'
                                         checked={postData.isTrending}
                                         onChange={handleCheckboxChange}
                                     />
@@ -236,6 +246,7 @@ export default function Post({ vTemplateId: _id }) {
                                     <input
                                         type="checkbox"
                                         name="isPremium"
+                                        className='post-input-checkbox'
                                         checked={postData.isPremium}
                                         onChange={handleCheckboxChange}
                                     />
@@ -243,10 +254,10 @@ export default function Post({ vTemplateId: _id }) {
                                 </label>
                             </div>
                         </div>
-                        <div className='col-lg-12'>
+                        <div className='col-lg-10 mt-3'>
                             <label htmlFor="vDiscription">Description</label>
                             <textarea
-                                className='form-control px-2'
+                                className='form-control px-2 post-description'
                                 name="vDiscription"
                                 value={postData.vDiscription}
                                 onChange={handleInputChange}
@@ -269,6 +280,8 @@ export default function Post({ vTemplateId: _id }) {
                                 <th scope="col">Category</th>
                                 <th scope="col">Trending Or Premium</th>
                                 <th scope="col">Description</th>
+                                <th scope="col">Thumb Image</th>
+                                <th scope="col">Original Image</th>
                                 <th>Delete / Update</th>
                             </tr>
                         </thead>
@@ -278,10 +291,17 @@ export default function Post({ vTemplateId: _id }) {
                                     <td>{index + 1}</td>
                                     <td>{options.find(option => option.id === item.vCatId)?.label || 'Unknown'}</td>
                                     <td>
-                                        {item.isTrending ? 'Trending' : ''}
-                                        {item.isPremium ? ' Premium' : ''}
+                                        {item.isTrending && 'Trending'}
+                                        {item.isTrending && item.isPremium && ' / '}
+                                        {item.isPremium && 'Premium'}
                                     </td>
                                     <td className='text-start'><pre>{JSON.stringify(item.vDiscription, null, 2)}</pre></td>
+                                    <td>
+                                        {item.vThumbImage && <img src={item.vThumbImage} alt="Thumb" style={{ width: '100px', height: 'auto' }} />}
+                                    </td>
+                                    <td>
+                                        {item.vOriginalImage && <img src={item.vOriginalImage} alt="Original" style={{ width: '100px', height: 'auto' }} />}
+                                    </td>
                                     <td>
                                         <button className='btn btn-danger mx-2 p-2' onClick={() => handleDelete(item._id)}>Delete</button>
                                         <button className='btn btn-success mx-2 p-2' onClick={() => handleUpdateClick(item)}>Update</button>
@@ -289,6 +309,7 @@ export default function Post({ vTemplateId: _id }) {
                                 </tr>
                             ))}
                         </tbody>
+
                     </table>
                 </div>
             </div>

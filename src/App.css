@@ -61,3 +61,15 @@ td {
   height: 50px;
   width: 50px;
 }
+
+/* post-description */
+.post-description {
+  height: 292px;
+}
+
+.post-input-checkbox[type='checkbox'] {
+  height: 20px;
+  width: 20px;
+  vertical-align: middle;
+  margin-right: 8px !important;
+}
