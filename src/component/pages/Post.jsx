@@ -156,8 +156,13 @@ export default function Post({ vTemplateId: _id }) {
         }
     };
 
-    const handleDelete = (id) => {
-        const vTemplateId = id.toString();
+ const handleDelete = (id) => {
+    const vTemplateId = id.toString();
+    
+    // Show confirmation popup
+    const isConfirmed = window.confirm("Are you sure you want to delete this item?");
+    
+    if (isConfirmed) {
         axios.delete(`${LIVE_URL}template/details`, {
             data: { vTemplateId },
             headers: {
@@ -171,7 +176,11 @@ export default function Post({ vTemplateId: _id }) {
             .catch(error => {
                 console.error("Error deleting category:", error.response ? error.response.data : error.message);
             });
-    };
+    } else {
+        console.log("Delete action was cancelled.");
+    }
+};
+
 
     const handleUpdateClick = (post) => {
         setPostData({
