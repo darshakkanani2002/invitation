@@ -73,3 +73,8 @@ td {
   vertical-align: middle;
   margin-right: 8px !important;
 }
+
+.post-vdescription-data {
+  height: 292px;
+  width: 670px;
+}

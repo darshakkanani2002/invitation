@@ -280,8 +280,8 @@ export default function Post({ vTemplateId: _id }) {
                                 <th scope="col">Category</th>
                                 <th scope="col">Trending Or Premium</th>
                                 <th scope="col">Description</th>
-                                <th scope="col">Thumb Image</th>
-                                <th scope="col">Original Image</th>
+                                {/* <th scope="col">Thumb Image</th>
+                                <th scope="col">Original Image</th> */}
                                 <th>Delete / Update</th>
                             </tr>
                         </thead>
@@ -295,13 +295,13 @@ export default function Post({ vTemplateId: _id }) {
                                         {item.isTrending && item.isPremium && ' / '}
                                         {item.isPremium && 'Premium'}
                                     </td>
-                                    <td className='text-start'><pre>{JSON.stringify(item.vDiscription, null, 2)}</pre></td>
-                                    <td>
+                                    <td className='text-start'><pre className='post-vdescription-data'>{JSON.stringify(item.vDiscription, null, 2)}</pre></td>
+                                    {/* <td>
                                         {item.vThumbImage && <img src={item.vThumbImage} alt="Thumb" style={{ width: '100px', height: 'auto' }} />}
                                     </td>
                                     <td>
                                         {item.vOriginalImage && <img src={item.vOriginalImage} alt="Original" style={{ width: '100px', height: 'auto' }} />}
-                                    </td>
+                                    </td> */}
                                     <td>
                                         <button className='btn btn-danger mx-2 p-2' onClick={() => handleDelete(item._id)}>Delete</button>
                                         <button className='btn btn-success mx-2 p-2' onClick={() => handleUpdateClick(item)}>Update</button>
