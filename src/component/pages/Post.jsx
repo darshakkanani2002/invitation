@@ -8,14 +8,16 @@ export default function Post({ vTemplateId: _id }) {
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [posts, setPosts] = useState([]);
     const [postData, setPostData] = useState({
-        vThumbImage: '',
-        vOriginalImage: '',
+        _id: '', // Add _id to manage update
+        vThumbImage: null,
+        vOriginalImage: null,
         isTrending: false,
         isPremium: false,
         vDiscription: '', // Single string for JSON-like input
         vCatId: '',
     });
     const [objectURLs, setObjectURLs] = useState({});
+    const [preview, setPreview] = useState(null);
 
     useEffect(() => {
         loadOptions();
@@ -66,28 +68,33 @@ export default function Post({ vTemplateId: _id }) {
             [name]: value
         }));
     };
-
     const handleFileChange = (e) => {
         const file = e.target.files[0];
-        if (!file) return;
+        setPostData({ ...postData, vThumbImage: file }, { ...postData, vOriginalImage: file });
+        setPreview(URL.createObjectURL(file));
+    }
 
-        // Create object URL for preview
-        const objectURL = URL.createObjectURL(file);
+    // const handleFileChange = (e) => {
+    //     const file = e.target.files[0];
+    //     // if (!file) return;
 
-        // Set object URL to state
-        setPostData(prevState => ({
-            ...prevState,
-            [e.target.name]: objectURL
-        }));
+    //     // Create object URL for preview
+    //     const objectURL = URL.createObjectURL(file);
 
-        // Store the object URL to clean up later
-        setObjectURLs(prevURLs => ({
-            ...prevURLs,
-            [e.target.name]: objectURL
-        }));
+    //     // Set object URL to state
+    //     setPostData(prevState => ({
+    //         ...prevState,
+    //         [e.target.name]: objectURL
+    //     }));
 
-        // Optionally, you can also upload the file here and store the uploaded URL if needed
-    };
+    //     // Store the object URL to clean up later
+    //     setObjectURLs(prevURLs => ({
+    //         ...prevURLs,
+    //         [e.target.name]: objectURL
+    //     }));
+
+    //     // Optionally, you can also upload the file here and store the uploaded URL if needed
+    // };
 
     const [options, setOptions] = useState([]);
     const loadOptions = async () => {
@@ -135,13 +142,25 @@ export default function Post({ vTemplateId: _id }) {
         };
 
         try {
-            const response = await axios.post(`${LIVE_URL}template/details`, data, {
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
-            console.log('Post Save Data ===>', response.data);
+            if (postData._id) {
+                // Update existing post
+                const response = await axios.put(`${LIVE_URL}template/details`, { ...data, _id: postData._id }, {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                console.log('Post Update Data ===>', response.data);
+            } else {
+                // Create new post
+                const response = await axios.post(`${LIVE_URL}template/details`, data, {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                console.log('Post Save Data ===>', response.data);
+            }
             setPostData({
+                _id: '',
                 vThumbImage: '',
                 vOriginalImage: '',
                 isTrending: false,
@@ -156,13 +175,8 @@ export default function Post({ vTemplateId: _id }) {
         }
     };
 
- const handleDelete = (id) => {
-    const vTemplateId = id.toString();
-    
-    // Show confirmation popup
-    const isConfirmed = window.confirm("Are you sure you want to delete this item?");
-    
-    if (isConfirmed) {
+    const handleDelete = (id) => {
+        const vTemplateId = id.toString();
         axios.delete(`${LIVE_URL}template/details`, {
             data: { vTemplateId },
             headers: {
@@ -176,14 +190,11 @@ export default function Post({ vTemplateId: _id }) {
             .catch(error => {
                 console.error("Error deleting category:", error.response ? error.response.data : error.message);
             });
-    } else {
-        console.log("Delete action was cancelled.");
-    }
-};
-
+    };
 
     const handleUpdateClick = (post) => {
         setPostData({
+            _id: post._id, // Set _id for update
             vThumbImage: post.vThumbImage,
             vOriginalImage: post.vOriginalImage,
             isTrending: post.isTrending,
@@ -275,7 +286,7 @@ export default function Post({ vTemplateId: _id }) {
                         </div>
                         <div className='col-lg-12 mt-3'>
                             <div className='text-center'>
-                                <button type='submit' className='btn btn-success p-2'>Upload Post</button>
+                                <button type='submit' className='btn btn-success p-2'>{postData._id ? 'Update Post' : 'Upload Post'}</button>
                             </div>
                         </div>
                     </div>
@@ -289,8 +300,8 @@ export default function Post({ vTemplateId: _id }) {
                                 <th scope="col">Category</th>
                                 <th scope="col">Trending Or Premium</th>
                                 <th scope="col">Description</th>
-                                {/* <th scope="col">Thumb Image</th>
-                                <th scope="col">Original Image</th> */}
+                                <th scope="col">Thumb Image</th>
+                                <th scope="col">Original Image</th>
                                 <th>Delete / Update</th>
                             </tr>
                         </thead>
@@ -305,12 +316,12 @@ export default function Post({ vTemplateId: _id }) {
                                         {item.isPremium && 'Premium'}
                                     </td>
                                     <td className='text-start'><pre className='post-vdescription-data'>{JSON.stringify(item.vDiscription, null, 2)}</pre></td>
-                                    {/* <td>
-                                        {item.vThumbImage && <img src={item.vThumbImage} alt="Thumb" style={{ width: '100px', height: 'auto' }} />}
+                                    <td>
+                                        {item.vThumbImage && <img crossOrigin="anonymous" src={`http://143.244.139.153:5000/${item.vThumbImage}`} alt="Thumb" style={{ width: '100px', height: 'auto' }} />}
                                     </td>
                                     <td>
-                                        {item.vOriginalImage && <img src={item.vOriginalImage} alt="Original" style={{ width: '100px', height: 'auto' }} />}
-                                    </td> */}
+                                        {item.vOriginalImage && <img crossOrigin="anonymous" src={`http://143.244.139.153:5000/${item.vOriginalImage}`} alt="Original" style={{ width: '100px', height: 'auto' }} />}
+                                    </td>
                                     <td>
                                         <button className='btn btn-danger mx-2 p-2' onClick={() => handleDelete(item._id)}>Delete</button>
                                         <button className='btn btn-success mx-2 p-2' onClick={() => handleUpdateClick(item)}>Update</button>
