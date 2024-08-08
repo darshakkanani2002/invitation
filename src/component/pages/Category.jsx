@@ -105,7 +105,7 @@ export default function Category({ vCatId: _id }) {
             // vEndColor: category.vEndColor,
             // vIcon: null, // We can't set the file input value
         });
-        setPreview(`https://143.244.139.153:5000/${category.vIcon}`);
+        setPreview(`http://143.244.139.153:5000/${category.vIcon}`);
         setIsUpdating(true);
         setCurrentCategoryId(category._id);
     };
@@ -190,7 +190,7 @@ export default function Category({ vCatId: _id }) {
                                         <tr key={item._id}>
                                             <td>{id + 1}</td>
                                             <td>
-                                                <img crossOrigin="anonymous" src={`https://143.244.139.153:5000/${item.vIcon}`} alt={item.vName} className='img-fluid category-icon' />
+                                                <img crossOrigin="anonymous" src={`http://143.244.139.153:5000/${item.vIcon}`} alt={item.vName} className='img-fluid category-icon' />
                                             </td>
                                             <td>{item.vName}</td>
                                             <td>
