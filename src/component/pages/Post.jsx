@@ -8,40 +8,47 @@ export default function Post({ vTemplateId: _id }) {
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [posts, setPosts] = useState([]);
     const [postData, setPostData] = useState({
-        _id: '', // Add _id to manage update
-        vThumbImage: null,
-        vOriginalImage: null,
+        _id: '',
+        vThumbImage: '',
+        vOriginalImage: '',
         isTrending: false,
         isPremium: false,
-        vDiscription: '', // Single string for JSON-like input
+        vDiscription: '',
         vCatId: '',
     });
-    const [objectURLs, setObjectURLs] = useState({});
-    const [preview, setPreview] = useState(null);
+    const [options, setOptions] = useState([]);
+    // const [thumbImage, setThumbImage] = useState(null);
+    // const [originalImage, setOriginalImage] = useState(null);
+    // const [uploadedImages, setUploadedImages] = useState(null);
 
     useEffect(() => {
         loadOptions();
     }, []);
 
-    useEffect(() => {
-        // Clean up object URLs on component unmount
-        return () => {
-            Object.values(objectURLs).forEach(url => URL.revokeObjectURL(url));
-        };
-    }, [objectURLs]);
-
-    const fetchData = async (vCatId) => {
+    const fetchData = async (vCatId, page = 1, limit = 10) => {
         try {
-            const response = await axios.post(`${LIVE_URL}template/frameBycatId`, { vCatId });
-            console.log("Post fetch Data ===>", response.data.data);
+            const response = await axios.post(`${LIVE_URL}template/frameBycatId`, { iPage: page, iLimit: limit, vCatId });
             setPosts(response.data.data);
         } catch (error) {
             console.log(error);
         }
     };
 
+    const loadOptions = async () => {
+        try {
+            const response = await axios.post(`${LIVE_URL}category/list`);
+            const data = response.data.data.map(category => ({
+                label: category.vName,
+                value: category._id,
+                id: category._id
+            }));
+            setOptions(data);
+        } catch (error) {
+            console.error('Error fetching options:', error);
+        }
+    };
+
     const handleCategorySelect = (selectedOption) => {
-        console.log("Selected Category:", selectedOption);
         setSelectedCategory(selectedOption);
         setPostData(prevState => ({
             ...prevState,
@@ -54,7 +61,6 @@ export default function Post({ vTemplateId: _id }) {
 
     const handleCheckboxChange = (e) => {
         const { name, checked } = e.target;
-        console.log(`Checkbox ${name} changed to ${checked}`);
         setPostData(prevState => ({
             ...prevState,
             [name]: checked
@@ -68,49 +74,43 @@ export default function Post({ vTemplateId: _id }) {
             [name]: value
         }));
     };
-    const handleFileChange = (e) => {
+
+    const handleFileChange = async (e) => {
         const file = e.target.files[0];
-        setPostData({ ...postData, vThumbImage: file }, { ...postData, vOriginalImage: file });
-        setPreview(URL.createObjectURL(file));
-    }
+        if (!file) return;
 
-    // const handleFileChange = (e) => {
-    //     const file = e.target.files[0];
-    //     // if (!file) return;
+        const formData = new FormData();
+        formData.append(e.target.name, file);
 
-    //     // Create object URL for preview
-    //     const objectURL = URL.createObjectURL(file);
-
-    //     // Set object URL to state
-    //     setPostData(prevState => ({
-    //         ...prevState,
-    //         [e.target.name]: objectURL
-    //     }));
-
-    //     // Store the object URL to clean up later
-    //     setObjectURLs(prevURLs => ({
-    //         ...prevURLs,
-    //         [e.target.name]: objectURL
-    //     }));
-
-    //     // Optionally, you can also upload the file here and store the uploaded URL if needed
-    // };
-
-    const [options, setOptions] = useState([]);
-    const loadOptions = async () => {
         try {
-            const response = await axios.post(`${LIVE_URL}category/list`);
-            const data = response.data.data.map(category => ({
-                label: category.vName,
-                value: category._id, // Use _id as the value
-                id: category._id
-            }));
-            console.log(data);
-            setOptions(data);
-        } catch (error) {
-            console.error('Error fetching options:', error);
+            const res = await axios.post(`${LIVE_URL}addImage/details`, formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data"
+                }
+            });
+
+
+
+            // Assuming the API returns the paths of the uploaded images
+            if (e.target.name === "vThumbImage") {
+                setPostData(prevState => ({
+                    ...prevState,
+                    vThumbImage: res.data.data.thumbImage
+                }));
+            } else if (e.target.name === "vOriginalImage") {
+                setPostData(prevState => ({
+                    ...prevState,
+                    vOriginalImage: res.data.data.originalImage
+                }));
+            }
+            console.log("Uploaded Data ===>", res.data.data);
+        } catch (err) {
+            console.error("Error uploading images:", err);
         }
+
     };
+
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -137,28 +137,32 @@ export default function Post({ vTemplateId: _id }) {
             vOriginalImage: postData.vOriginalImage,
             isTrending: postData.isTrending,
             isPremium: postData.isPremium,
-            vDiscription: vDiscription, // Send as an array
+            vDiscription: vDiscription,
             vCatId: postData.vCatId,
         };
 
         try {
+            let response;
             if (postData._id) {
                 // Update existing post
-                const response = await axios.put(`${LIVE_URL}template/details`, { ...data, _id: postData._id }, {
+                response = await axios.put(`${LIVE_URL}template/details`, { ...data, _id: postData._id }, {
                     headers: {
                         'Content-Type': 'application/json'
                     }
                 });
-                console.log('Post Update Data ===>', response.data);
             } else {
                 // Create new post
-                const response = await axios.post(`${LIVE_URL}template/details`, data, {
+                response = await axios.post(`${LIVE_URL}template/details`, data, {
                     headers: {
                         'Content-Type': 'application/json'
                     }
                 });
-                console.log('Post Save Data ===>', response.data);
             }
+
+            // Log the response data in the console
+            console.log("Post Save Data ===>", response.data);
+
+            // Reset form data
             setPostData({
                 _id: '',
                 vThumbImage: '',
@@ -168,15 +172,27 @@ export default function Post({ vTemplateId: _id }) {
                 vDiscription: '',
                 vCatId: '',
             });
-            setSelectedCategory(null); // Reset category select
+
+            // Fetch the updated data
             fetchData(postData.vCatId);
         } catch (error) {
             console.error('Error submitting data:', error.response ? error.response.data : error.message);
         }
     };
 
+    const refresh = () => {
+        if (selectedCategory) {
+            fetchData(selectedCategory.id);
+        }
+    };
+
     const handleDelete = (id) => {
         const vTemplateId = id.toString();
+        const isConfirmed = window.confirm("Are you sure you want to delete this item?");
+        if (!isConfirmed) {
+            return;
+        }
+
         axios.delete(`${LIVE_URL}template/details`, {
             data: { vTemplateId },
             headers: {
@@ -184,22 +200,22 @@ export default function Post({ vTemplateId: _id }) {
             }
         })
             .then(response => {
-                console.log("Category deleted successfully:", response.data);
-                fetchData(postData.vCatId); // Fetch data for the current category
+                console.log("Category deleted successfully ===>", response.data);
+                refresh();
             })
             .catch(error => {
-                console.error("Error deleting category:", error.response ? error.response.data : error.message);
+                console.log("Error deleting category ===>", error);
             });
     };
 
     const handleUpdateClick = (post) => {
         setPostData({
-            _id: post._id, // Set _id for update
+            _id: post._id,
             vThumbImage: post.vThumbImage,
             vOriginalImage: post.vOriginalImage,
             isTrending: post.isTrending,
             isPremium: post.isPremium,
-            vDiscription: JSON.stringify(post.vDiscription, null, 2), // Convert back to string
+            vDiscription: JSON.stringify(post.vDiscription, null, 2),
             vCatId: post.vCatId,
         });
         setSelectedCategory(options.find(option => option.id === post.vCatId));
@@ -220,7 +236,7 @@ export default function Post({ vTemplateId: _id }) {
                                 onChange={handleCategorySelect}
                                 onMenuOpen={loadOptions}
                                 options={options}
-                            ></Select>
+                            />
                         </div>
                         <div className='col-lg-6 pe-2 py-2 mb-3'>
                             <label htmlFor="vThumbImage">Thumb Image</label>
@@ -231,7 +247,7 @@ export default function Post({ vTemplateId: _id }) {
                                 onChange={handleFileChange}
                             />
                             {postData.vThumbImage && (
-                                <img src={postData.vThumbImage} alt="Thumb Preview" style={{ width: '100px', height: 'auto', marginTop: '10px' }} />
+                                <img crossOrigin="anonymous" src={`http://143.244.139.153:5000/${postData.vThumbImage}`} alt="Thumb Preview" style={{ width: '100px', height: 'auto', marginTop: '10px' }} />
                             )}
                         </div>
                         <div className='col-lg-6 ps-2 py-2 mb-3'>
@@ -243,7 +259,7 @@ export default function Post({ vTemplateId: _id }) {
                                 onChange={handleFileChange}
                             />
                             {postData.vOriginalImage && (
-                                <img src={postData.vOriginalImage} alt="Original Preview" style={{ width: '100px', height: 'auto', marginTop: '10px' }} />
+                                <img crossOrigin="anonymous" src={`http://143.244.139.153:5000/${postData.vOriginalImage}`} alt="Original Preview" style={{ width: '100px', height: 'auto', marginTop: '10px' }} />
                             )}
                         </div>
                         <div className='col-lg-3 me-2'>
@@ -329,7 +345,6 @@ export default function Post({ vTemplateId: _id }) {
                                 </tr>
                             ))}
                         </tbody>
-
                     </table>
                 </div>
             </div>

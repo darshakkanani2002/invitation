@@ -36,7 +36,7 @@ const Sidebar = () => {
                     </li>
                     <li className="my-3"><Link to="/post">Post</Link>
                     </li>
-                    <li className="my-3"><Link to="/services">Services</Link></li>
+                    <li className="my-3"><Link to="/help">help</Link></li>
                     <li className="my-3"><Link to="/contact">Contact</Link></li>
                 </ul>
             </div>
