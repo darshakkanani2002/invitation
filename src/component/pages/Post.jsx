@@ -29,6 +29,7 @@ export default function Post({ vTemplateId: _id }) {
         loadOptions();
     }, []);
 
+    // -------------------------------------------------- fetch Data------------------------
     const fetchData = async (vCatId, page = 1, limit = 10) => {
         try {
             const response = await axios.post(`${LIVE_URL}template/frameBycatId`, { iPage: page, iLimit: limit, vCatId });
@@ -38,6 +39,7 @@ export default function Post({ vTemplateId: _id }) {
         }
     };
 
+    // -------------------------------------------------- Load Category Option------------------------
     const loadOptions = async () => {
         try {
             const response = await axios.post(`${LIVE_URL}category/list`);
@@ -51,7 +53,7 @@ export default function Post({ vTemplateId: _id }) {
             console.error('Error fetching options:', error);
         }
     };
-
+    // category select handle ---------------------------
     const handleCategorySelect = (selectedOption) => {
         setSelectedCategory(selectedOption);
         setPostData(prevState => ({
@@ -64,7 +66,7 @@ export default function Post({ vTemplateId: _id }) {
 
         }
     };
-
+    // -------------------------------------------------- Handle check boc for iS premium and Is Trending ------------------------
     const handleCheckboxChange = (e) => {
         const { name, checked } = e.target;
         setPostData(prevState => ({
@@ -72,7 +74,7 @@ export default function Post({ vTemplateId: _id }) {
             [name]: checked
         }));
     };
-
+    // -------------------------------------------------- handle input change ------------------------
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setPostData(prevState => ({
@@ -80,7 +82,7 @@ export default function Post({ vTemplateId: _id }) {
             [name]: value
         }));
     };
-
+    // -------------------------------------------------- handle file change Data for images------------------------
     const handleFileChange = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
@@ -113,8 +115,7 @@ export default function Post({ vTemplateId: _id }) {
 
     };
 
-
-
+    // -------------------------------------------------- Post Data save api ------------------------
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -144,6 +145,7 @@ export default function Post({ vTemplateId: _id }) {
 
         try {
             let response;
+            // --------------------------------------------------  Data update Api------------------------
             if (postData._id) {
                 // Update existing post, exclude isPremium
                 const updateData = { ...data, vTemplateId: postData._id };
@@ -154,6 +156,7 @@ export default function Post({ vTemplateId: _id }) {
                 });
                 toast.success('Post updated successfully!');
             } else {
+                // -------------------------------------------------- Post Data save Api ------------------------
                 // Create new post, include isPremium
                 data.isPremium = postData.isPremium; // Add isPremium for new post
                 data.vCatId = postData.vCatId
@@ -197,6 +200,7 @@ export default function Post({ vTemplateId: _id }) {
         }
     };
 
+    // -------------------------------------------------- Post Data Delete Handle ------------------------
     const handleDelete = async (id) => {
         let response;
         const vTemplateId = id.toString();
@@ -221,7 +225,7 @@ export default function Post({ vTemplateId: _id }) {
             console.log("Error deleting post:", error);
         }
     };
-
+    // -------------------------------------------------- Post Data  Update Data handle ------------------------
     const handleUpdateClick = (post) => {
         setPostData({
             _id: post._id,
@@ -237,6 +241,7 @@ export default function Post({ vTemplateId: _id }) {
 
     return (
         <div>
+            {/*---------------- Toaster----------- */}
             <ToastContainer
                 position="top-center"
                 autoClose={2000}
@@ -250,7 +255,7 @@ export default function Post({ vTemplateId: _id }) {
                 theme="dark"
                 transition:Bounce
             />
-
+            {/* Post Data and Form Code */}
             <div className='container mx-auto mt-5'>
                 <form onSubmit={handleSubmit}>
                     <div className='row border px-3 py-3'>
