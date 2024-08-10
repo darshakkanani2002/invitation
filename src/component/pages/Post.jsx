@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import Select from 'react-select';
 import { API_URL, LIVE_URL } from '../config';
@@ -19,6 +19,8 @@ export default function Post({ vTemplateId: _id }) {
         vCatId: '',
     });
     const [options, setOptions] = useState([]);
+    const fileInputRef1 = useRef(null);
+    const fileInputRef = useRef(null);
     // const [thumbImage, setThumbImage] = useState(null);
     // const [originalImage, setOriginalImage] = useState(null);
     // const [uploadedImages, setUploadedImages] = useState(null);
@@ -58,6 +60,8 @@ export default function Post({ vTemplateId: _id }) {
         }));
         if (selectedOption) {
             fetchData(selectedOption.id);
+            console.log("Selected Options ===>", selectedOption);
+
         }
     };
 
@@ -90,9 +94,6 @@ export default function Post({ vTemplateId: _id }) {
                     "Content-Type": "multipart/form-data"
                 }
             });
-
-
-
             // Assuming the API returns the paths of the uploaded images
             if (e.target.name === "vThumbImage") {
                 setPostData(prevState => ({
@@ -138,23 +139,24 @@ export default function Post({ vTemplateId: _id }) {
             vThumbImage: postData.vThumbImage,
             vOriginalImage: postData.vOriginalImage,
             isTrending: postData.isTrending,
-            isPremium: postData.isPremium,
             vDiscription: vDiscription,
-            vCatId: postData.vCatId,
         };
 
         try {
             let response;
             if (postData._id) {
-                // Update existing post
-                response = await axios.put(`${LIVE_URL}template/details`, { ...data, _id: postData._id }, {
+                // Update existing post, exclude isPremium
+                const updateData = { ...data, vTemplateId: postData._id };
+                response = await axios.put(`${LIVE_URL}template/details`, updateData, {
                     headers: {
                         'Content-Type': 'application/json'
                     }
                 });
                 toast.success('Post updated successfully!');
             } else {
-                // Create new post
+                // Create new post, include isPremium
+                data.isPremium = postData.isPremium; // Add isPremium for new post
+                data.vCatId = postData.vCatId
                 response = await axios.post(`${LIVE_URL}template/details`, data, {
                     headers: {
                         'Content-Type': 'application/json'
@@ -169,13 +171,17 @@ export default function Post({ vTemplateId: _id }) {
             // Reset form data
             setPostData({
                 _id: '',
-                vThumbImage: '',
-                vOriginalImage: '',
+                vThumbImage: null,
+                vOriginalImage: null,
                 isTrending: false,
                 isPremium: false,
                 vDiscription: '',
                 vCatId: '',
             });
+            if (fileInputRef.current || fileInputRef1.current) {
+                fileInputRef.current.value = '';
+                fileInputRef1.current.value = '';
+            }
 
             // Fetch the updated data
             fetchData(postData.vCatId);
@@ -184,32 +190,36 @@ export default function Post({ vTemplateId: _id }) {
         }
     };
 
+
     const refresh = () => {
         if (selectedCategory) {
             fetchData(selectedCategory.id);
         }
     };
 
-    const handleDelete = (id) => {
+    const handleDelete = async (id) => {
+        let response;
         const vTemplateId = id.toString();
         const isConfirmed = window.confirm("Are you sure you want to delete this item?");
         if (!isConfirmed) {
             return;
         }
 
-        axios.delete(`${LIVE_URL}template/details`, {
-            data: { vTemplateId },
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
-            .then(response => {
-                console.log("Category deleted successfully ===>", response.data);
-                refresh();
-            })
-            .catch(error => {
-                console.log("Error deleting category ===>", error);
+        try {
+            response = await axios.delete(`${LIVE_URL}template/details`, {
+                data: { vTemplateId },
+                headers: {
+                    'Content-Type': 'application/json'
+                }
             });
+            console.log("Deleted Post Data ===>", response.data);
+
+            toast.success('Post deleted successfully!');
+            refresh();
+        } catch (error) {
+            toast.error('Error deleting post.');
+            console.log("Error deleting post:", error);
+        }
     };
 
     const handleUpdateClick = (post) => {
@@ -227,7 +237,20 @@ export default function Post({ vTemplateId: _id }) {
 
     return (
         <div>
-            <ToastContainer />
+            <ToastContainer
+                position="top-center"
+                autoClose={2000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme="dark"
+                transition:Bounce
+            />
+
             <div className='container mx-auto mt-5'>
                 <form onSubmit={handleSubmit}>
                     <div className='row border px-3 py-3'>
@@ -250,6 +273,7 @@ export default function Post({ vTemplateId: _id }) {
                                 className='form-control py-2'
                                 name="vThumbImage"
                                 onChange={handleFileChange}
+                                ref={fileInputRef1}
                             />
                             {postData.vThumbImage && (
                                 <img crossOrigin="anonymous" src={`http://143.244.139.153:5000/${postData.vThumbImage}`} alt="Thumb Preview" style={{ width: '100px', height: 'auto', marginTop: '10px' }} />
@@ -262,6 +286,7 @@ export default function Post({ vTemplateId: _id }) {
                                 className='form-control py-2'
                                 name="vOriginalImage"
                                 onChange={handleFileChange}
+                                ref={fileInputRef}
                             />
                             {postData.vOriginalImage && (
                                 <img crossOrigin="anonymous" src={`http://143.244.139.153:5000/${postData.vOriginalImage}`} alt="Original Preview" style={{ width: '100px', height: 'auto', marginTop: '10px' }} />
