@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Select from 'react-select';
 import { API_URL, LIVE_URL } from '../config';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function Post({ vTemplateId: _id }) {
     const [categories, setCategories] = useState([]);
@@ -150,6 +152,7 @@ export default function Post({ vTemplateId: _id }) {
                         'Content-Type': 'application/json'
                     }
                 });
+                toast.success('Post updated successfully!');
             } else {
                 // Create new post
                 response = await axios.post(`${LIVE_URL}template/details`, data, {
@@ -157,6 +160,7 @@ export default function Post({ vTemplateId: _id }) {
                         'Content-Type': 'application/json'
                     }
                 });
+                toast.success('Post created successfully!');
             }
 
             // Log the response data in the console
@@ -223,6 +227,7 @@ export default function Post({ vTemplateId: _id }) {
 
     return (
         <div>
+            <ToastContainer />
             <div className='container mx-auto mt-5'>
                 <form onSubmit={handleSubmit}>
                     <div className='row border px-3 py-3'>
