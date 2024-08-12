@@ -1,6 +1,3 @@
-/* .App {
-  display: flex;
-} */
 * {
   margin: 0;
   padding: 0;
@@ -70,7 +67,7 @@ td {
 /* post-description */
 .post-form {
   max-width: 1238px;
-  margin: auto;
+  margin: auto !important;
   border-radius: 10px !important;
 }
 
