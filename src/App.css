@@ -1,6 +1,11 @@
 /* .App {
   display: flex;
 } */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box !important;
+}
 
 .sidebar {
   width: 250px;
@@ -63,8 +68,14 @@ td {
 }
 
 /* post-description */
+.post-form {
+  max-width: 1238px;
+  margin: auto;
+  border-radius: 10px !important;
+}
+
 .post-description {
-  height: 292px;
+  height: 300px;
 }
 
 .post-input-checkbox[type='checkbox'] {

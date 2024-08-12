@@ -21,16 +21,13 @@ export default function Post({ vTemplateId: _id }) {
     const [options, setOptions] = useState([]);
     const fileInputRef1 = useRef(null);
     const fileInputRef = useRef(null);
-    // const [thumbImage, setThumbImage] = useState(null);
-    // const [originalImage, setOriginalImage] = useState(null);
-    // const [uploadedImages, setUploadedImages] = useState(null);
 
     useEffect(() => {
         loadOptions();
     }, []);
 
     // -------------------------------------------------- fetch Data------------------------
-    const fetchData = async (vCatId, page = 1, limit = 10) => {
+    const fetchData = async (vCatId, page = 1, limit = 100) => {
         try {
             const response = await axios.post(`${LIVE_URL}template/frameBycatId`, { iPage: page, iLimit: limit, vCatId });
             setPosts(response.data.data);
@@ -273,7 +270,7 @@ export default function Post({ vTemplateId: _id }) {
             {/* Post Data and Form Code */}
             <div className='container mx-auto mt-5'>
                 <form onSubmit={handleSubmit} id='postform'>
-                    <div className='row border px-3 py-3'>
+                    <div className='row border border-dark px-3 py-3 post-form'>
                         <div className='col-lg-12'>
                             <label htmlFor="inputState" className="form-label">Category</label>
                             <Select
@@ -341,7 +338,7 @@ export default function Post({ vTemplateId: _id }) {
                             </div>
                         </div>
 
-                        <div className='col-lg-10 mt-3'>
+                        <div className='col-lg-12 mt-3'>
                             <label htmlFor="vDiscription">Description</label>
                             <textarea
                                 className='form-control px-2 post-description'
@@ -359,7 +356,7 @@ export default function Post({ vTemplateId: _id }) {
                     </div>
                 </form>
 
-                <div className='mt-5 table-responsive'>
+                <div className='my-5 table-responsive'>
                     <table className="table table-border category-table">
                         <thead>
                             <tr>
