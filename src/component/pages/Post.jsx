@@ -67,11 +67,26 @@ export default function Post({ vTemplateId: _id }) {
         }
     };
     // -------------------------------------------------- Handle check boc for iS premium and Is Trending ------------------------
-    const handleCheckboxChange = (e) => {
-        const { name, checked } = e.target;
+    // Handle checkbox change for isTrending
+    const handleTrendingChange = (e) => {
+        const { checked } = e.target;
+        setPostData(prevState => {
+            const newState = {
+                ...prevState,
+                isTrending: checked
+            };
+            console.log("isTrending:", newState.isTrending); // Check the value here
+            return newState;
+        });
+    };
+
+
+    // Handle checkbox change for isPremium
+    const handlePremiumChange = (e) => {
+        const { checked } = e.target;
         setPostData(prevState => ({
             ...prevState,
-            [name]: checked
+            isPremium: checked
         }));
     };
     // -------------------------------------------------- handle input change ------------------------
@@ -257,7 +272,7 @@ export default function Post({ vTemplateId: _id }) {
             />
             {/* Post Data and Form Code */}
             <div className='container mx-auto mt-5'>
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={handleSubmit} id='postform'>
                     <div className='row border px-3 py-3'>
                         <div className='col-lg-12'>
                             <label htmlFor="inputState" className="form-label">Category</label>
@@ -305,7 +320,7 @@ export default function Post({ vTemplateId: _id }) {
                                         name="isTrending"
                                         className='post-input-checkbox'
                                         checked={postData.isTrending}
-                                        onChange={handleCheckboxChange}
+                                        onChange={handleTrendingChange}
                                     />
                                     Trending
                                 </label>
@@ -319,12 +334,13 @@ export default function Post({ vTemplateId: _id }) {
                                         name="isPremium"
                                         className='post-input-checkbox'
                                         checked={postData.isPremium}
-                                        onChange={handleCheckboxChange}
+                                        onChange={handlePremiumChange}
                                     />
                                     Premium
                                 </label>
                             </div>
                         </div>
+
                         <div className='col-lg-10 mt-3'>
                             <label htmlFor="vDiscription">Description</label>
                             <textarea
@@ -357,28 +373,30 @@ export default function Post({ vTemplateId: _id }) {
                             </tr>
                         </thead>
                         <tbody>
-                            {posts.map((item, index) => (
-                                <tr key={item._id}>
-                                    <td>{index + 1}</td>
-                                    <td>{options.find(option => option.id === item.vCatId)?.label || 'Unknown'}</td>
-                                    <td>
-                                        {item.isTrending && 'Trending'}
-                                        {item.isTrending && item.isPremium && ' / '}
-                                        {item.isPremium && 'Premium'}
-                                    </td>
-                                    <td className='text-start'><pre className='post-vdescription-data'>{JSON.stringify(item.vDiscription, null, 2)}</pre></td>
-                                    <td>
-                                        {item.vThumbImage && <img crossOrigin="anonymous" src={`http://143.244.139.153:5000/${item.vThumbImage}`} alt="Thumb" style={{ width: '100px', height: 'auto' }} />}
-                                    </td>
-                                    <td>
-                                        {item.vOriginalImage && <img crossOrigin="anonymous" src={`http://143.244.139.153:5000/${item.vOriginalImage}`} alt="Original" style={{ width: '100px', height: 'auto' }} />}
-                                    </td>
-                                    <td>
-                                        <button className='btn btn-danger mx-2 p-2' onClick={() => handleDelete(item._id)}>Delete</button>
-                                        <button className='btn btn-success mx-2 p-2' onClick={() => handleUpdateClick(item)}>Update</button>
-                                    </td>
-                                </tr>
-                            ))}
+                            {posts.map((item, index) => {
+                                return (
+                                    <tr key={item._id}>
+                                        <td>{index + 1}</td>
+                                        <td>{options.find(option => option.id === item.vCatId)?.label || 'Unknown'}</td>
+                                        <td>
+                                            {item.isTrending && 'Trending'}
+                                            {item.isTrending && item.isPremium && ' / '}
+                                            {item.isPremium && 'Premium'}
+                                        </td>
+                                        <td className='text-start'><pre className='post-vdescription-data'>{JSON.stringify(item.vDiscription, null, 2)}</pre></td>
+                                        <td>
+                                            {item.vThumbImage && <img crossOrigin="anonymous" src={`http://143.244.139.153:5000/${item.vThumbImage}`} alt="Thumb" style={{ width: '100px', height: 'auto' }} />}
+                                        </td>
+                                        <td>
+                                            {item.vOriginalImage && <img crossOrigin="anonymous" src={`http://143.244.139.153:5000/${item.vOriginalImage}`} alt="Original" style={{ width: '100px', height: 'auto' }} />}
+                                        </td>
+                                        <td>
+                                            <button className='btn btn-danger mx-2 p-2' onClick={() => handleDelete(item._id)}>Delete</button>
+                                            <a href='#postform'><button className='btn btn-success mx-2 p-2' onClick={() => handleUpdateClick(item)}>Update</button></a>
+                                        </td>
+                                    </tr>
+                                );
+                            })}
                         </tbody>
                     </table>
                 </div>
