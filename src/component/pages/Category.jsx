@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import { API_URL, LIVE_URL } from '../config';
+import { toast, ToastContainer } from 'react-toastify';
 
 export default function Category({ vCatId: _id }) {
     const [Category, setCategory] = useState([]);
@@ -40,7 +41,7 @@ export default function Category({ vCatId: _id }) {
 
         const updateData = new FormData();
         updateData.append('vName', categoryData.vName);
-        updateData.append('vIcon', categoryData.vIcon);
+        // updateData.append('vIcon', categoryData.vIcon);
 
         try {
             if (isUpdating) {
@@ -50,12 +51,15 @@ export default function Category({ vCatId: _id }) {
                         'Content-Type': 'multipart/form-data'
                     }
                 });
+                toast.success('Category Updated successfully!');
             } else {
-                await axios.post(`${API_URL}category/details`, formData, {
+                await axios.post(`${LIVE_URL}category/details`, formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data'
                     }
+
                 });
+                toast.success('Category created successfully!');
             }
             fetchData();
             setCategoryData({
@@ -64,6 +68,7 @@ export default function Category({ vCatId: _id }) {
                 vEndColor: '#000000',   // Reset to default color value
                 vIcon: null,
             });
+
             if (fileInputRef.current) {
                 fileInputRef.current.value = '';
             }
@@ -113,9 +118,19 @@ export default function Category({ vCatId: _id }) {
     return (
         <div>
             <div className="px-2">
-                <div className=''>
-                    <div></div>
-                </div>
+                <ToastContainer
+                    position="top-center"
+                    autoClose={2000}
+                    hideProgressBar={false}
+                    newestOnTop={false}
+                    closeOnClick
+                    rtl={false}
+                    pauseOnFocusLoss
+                    draggable
+                    pauseOnHover
+                    theme="dark"
+                    transition:Bounce
+                />
 
                 <form onSubmit={handleSubmit} className="category-form d-flex justify-content-center mt-5">
                     <div className='row border p-3'>
