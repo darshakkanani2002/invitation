@@ -388,8 +388,8 @@ export default function Post({ vTemplateId: _id }) {
                                             {item.vOriginalImage && <img crossOrigin="anonymous" src={`http://143.244.139.153:5000/${item.vOriginalImage}`} alt="Original" style={{ width: '100px', height: 'auto' }} />}
                                         </td>
                                         <td>
-                                            <button className='btn btn-danger mx-2 p-2' onClick={() => handleDelete(item._id)}>Delete</button>
-                                            <a href='#postform'><button className='btn btn-success mx-2 p-2' onClick={() => handleUpdateClick(item)}>Update</button></a>
+                                            <button className='btn btn-danger mx-2 px-3 mb-3' onClick={() => handleDelete(item._id)}><i class="fa-solid fa-trash"></i></button>
+                                            <a href='#postform'><button className='btn btn-success mx-2 px-3' onClick={() => handleUpdateClick(item)}><i class="fa-solid fa-pen-to-square"></i></button></a>
                                         </td>
                                     </tr>
                                 );

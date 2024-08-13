@@ -36,8 +36,6 @@ const Sidebar = () => {
                     </li>
                     <li className="my-3"><Link to="/post">Post</Link>
                     </li>
-                    <li className="my-3"><Link to="/help">help</Link></li>
-                    <li className="my-3"><Link to="/contact">Contact</Link></li>
                 </ul>
             </div>
 
@@ -53,8 +51,6 @@ const Sidebar = () => {
                             </Link>
                         </li>
                         <li className="my-3"><Link to="/post" onClick={handleClose}>Post</Link></li>
-                        <li className="my-3"><Link to="/services" onClick={handleClose}>Services</Link></li>
-                        <li className="my-3"><Link to="/contact" onClick={handleClose}>Contact</Link></li>
                     </ul>
                 </Offcanvas.Body>
             </Offcanvas>

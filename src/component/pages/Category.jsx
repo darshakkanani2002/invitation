@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
-import { API_URL, LIVE_URL} from '../config';
+import { API_URL, LIVE_URL } from '../config';
 
 export default function Category({ vCatId: _id }) {
     const [Category, setCategory] = useState([]);
@@ -21,7 +21,7 @@ export default function Category({ vCatId: _id }) {
     }, []);
 
     const fetchData = () => {
-        axios.post(`${API_URL}category/list`).then(response => {
+        axios.post(`${LIVE_URL}category/list`).then(response => {
             console.log("category data ===>", response.data.data);
             setCategory(response.data.data);
         }).catch(error => {
@@ -45,7 +45,7 @@ export default function Category({ vCatId: _id }) {
         try {
             if (isUpdating) {
                 updateData.append('vCatId', currentCategoryId); // Append the currentCategoryId to FormData
-                await axios.put(`${API_URL}category/details`, updateData, {
+                await axios.put(`${LIVE_URL}category/details`, updateData, {
                     headers: {
                         'Content-Type': 'multipart/form-data'
                     }
@@ -76,7 +76,7 @@ export default function Category({ vCatId: _id }) {
     };
 
     const handleDelete = () => {
-        axios.delete(`${API_URL}category/details`, {
+        axios.delete(`${LIVE_URL}category/details`, {
             data: { vCatId: deleteCategoryId },
             headers: {
                 'Content-Type': 'application/json'
