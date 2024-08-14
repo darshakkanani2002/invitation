@@ -108,7 +108,7 @@ export default function Category({ vCatId: _id }) {
             vName: category.vName,
             // vStartColor: category.vStartColor,
             // vEndColor: category.vEndColor,
-            // vIcon: null, // We can't set the file input value
+            vIcon: category.vIcon, // We can't set the file input value
         });
         setPreview(`http://143.244.139.153:5000/${category.vIcon}`);
         setIsUpdating(true);
@@ -177,7 +177,7 @@ export default function Category({ vCatId: _id }) {
                                 ref={fileInputRef}
                                 required={!isUpdating}
                             />
-                            {preview && <img src={preview} alt="Preview" className='img-fluid mt-2 category-select-icon' />}
+                            {preview && <img crossOrigin="anonymous" src={preview} alt="Preview" className='img-fluid mt-2 category-select-icon' />}
                         </div>
                         <div className='col-lg-12 mb-3'>
                             <button type='submit' className='btn btn-primary text-center px-2 py-2 d-flex m-auto' data-bs-dismiss="modal">
