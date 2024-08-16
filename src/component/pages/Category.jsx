@@ -108,7 +108,7 @@ export default function Category({ vCatId: _id }) {
             vName: category.vName,
             // vStartColor: category.vStartColor,
             // vEndColor: category.vEndColor,
-            vIcon: category.vIcon, // We can't set the file input value
+            // vIcon: category.vIcon, // We can't set the file input value
         });
         setPreview(`http://143.244.139.153:5000/${category.vIcon}`);
         setIsUpdating(true);
@@ -149,7 +149,7 @@ export default function Category({ vCatId: _id }) {
                             <label htmlFor="startcolor" className="form-label">Start Color</label>
                             <input
                                 type="color"
-                                className='form-control rounded'
+                                className='form-control choose-input-color'
                                 id='startcolor'
                                 value={categoryData.vStartColor}
                                 onChange={(e) => setCategoryData({ ...categoryData, vStartColor: e.target.value })}
@@ -160,7 +160,7 @@ export default function Category({ vCatId: _id }) {
                             <label htmlFor="endcolor" className="form-label">End Color</label>
                             <input
                                 type="color"
-                                className='form-control'
+                                className='form-control choose-input-color'
                                 id='endcolor'
                                 value={categoryData.vEndColor}
                                 onChange={(e) => setCategoryData({ ...categoryData, vEndColor: e.target.value })}
@@ -209,19 +209,19 @@ export default function Category({ vCatId: _id }) {
                                             </td>
                                             <td>{item.vName}</td>
                                             <td>
-                                                <input type="color" value={item.vStartColor} className='mx-2' readOnly />
-                                                <input type="color" value={item.vEndColor} className='mx-2' readOnly />
+                                                <input type="color" value={item.vStartColor} className='mx-2 choose-input-color' readOnly />
+                                                <input type="color" value={item.vEndColor} className='mx-2 choose-input-color' readOnly />
                                             </td>
                                             <td>
                                                 <button
-                                                    className='btn btn-danger mx-2 p-2'
+                                                    className='btn btn-danger mx-2 px-3'
                                                     onClick={() => setDeleteCategoryId(item._id)}
                                                     data-bs-toggle="modal"
                                                     data-bs-target="#deleteModal"
                                                 >
-                                                    Delete
+                                                    <i class="fa-solid fa-trash"></i>
                                                 </button>
-                                                <button className='btn btn-success mx-2 p-2' onClick={() => handleUpdate(item)}>Update</button>
+                                                <button className='btn btn-success mx-2 px-3' onClick={() => handleUpdate(item)}><i class="fa-solid fa-pen-to-square"></i></button>
                                             </td>
                                         </tr>
                                     ))}
