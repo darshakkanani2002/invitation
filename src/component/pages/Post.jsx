@@ -19,6 +19,7 @@ export default function Post({ vTemplateId: _id }) {
         vCatId: '',
     });
     const [options, setOptions] = useState([]);
+    const [loading, setLoading] = useState(false)
     const fileInputRef1 = useRef(null);
     const fileInputRef = useRef(null);
 
@@ -38,6 +39,7 @@ export default function Post({ vTemplateId: _id }) {
 
     // -------------------------------------------------- Load Category Option------------------------
     const loadOptions = async () => {
+        setLoading(true);
         try {
             const response = await axios.post(`${LIVE_URL}category/list`);
             const data = response.data.data.map(category => ({
@@ -48,6 +50,8 @@ export default function Post({ vTemplateId: _id }) {
             setOptions(data);
         } catch (error) {
             console.error('Error fetching options:', error);
+        } finally {
+            setLoading(false)
         }
     };
     // category select handle ---------------------------
@@ -130,6 +134,7 @@ export default function Post({ vTemplateId: _id }) {
     // -------------------------------------------------- Post Data save api ------------------------
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setLoading(true);
 
         if (!postData.vCatId) {
             alert('Category is required. Please select a category.');
@@ -170,8 +175,10 @@ export default function Post({ vTemplateId: _id }) {
             } else {
                 // -------------------------------------------------- Post Data save Api ------------------------
                 // Create new post, include isPremium
-                data.isPremium = postData.isPremium; // Add isPremium for new post
+
+                data.isPremium = postData.isPremium // Add isPremium for new post
                 data.vCatId = postData.vCatId
+                data.isTrending = postData.isTrending
                 response = await axios.post(`${LIVE_URL}template/details`, data, {
                     headers: {
                         'Content-Type': 'application/json'
@@ -202,6 +209,8 @@ export default function Post({ vTemplateId: _id }) {
             fetchData(postData.vCatId);
         } catch (error) {
             console.error('Error submitting data:', error.response ? error.response.data : error.message);
+        } finally {
+            setLoading(false)
         }
     };
 
@@ -369,32 +378,37 @@ export default function Post({ vTemplateId: _id }) {
                                 <th>Delete / Update</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            {posts.map((item, index) => {
-                                return (
-                                    <tr key={item._id}>
-                                        <td>{index + 1}</td>
-                                        <td>{options.find(option => option.id === item.vCatId)?.label || 'Unknown'}</td>
-                                        <td>
-                                            {item.isTrending && 'Trending'}
-                                            {item.isTrending && item.isPremium && ' / '}
-                                            {item.isPremium && 'Premium'}
-                                        </td>
-                                        <td className='text-start'><pre className='post-vdescription-data'>{JSON.stringify(item.vDiscription, null, 2)}</pre></td>
-                                        <td>
-                                            {item.vThumbImage && <img crossOrigin="anonymous" src={`http://143.244.139.153:5000/${item.vThumbImage}`} alt="Thumb" style={{ width: '100px', height: 'auto' }} />}
-                                        </td>
-                                        <td>
-                                            {item.vOriginalImage && <img crossOrigin="anonymous" src={`http://143.244.139.153:5000/${item.vOriginalImage}`} alt="Original" style={{ width: '100px', height: 'auto' }} />}
-                                        </td>
-                                        <td>
-                                            <button className='btn btn-danger mx-2 px-3 mb-3' onClick={() => handleDelete(item._id)}><i class="fa-solid fa-trash"></i></button>
-                                            <a href='#postform'><button className='btn btn-success mx-2 px-3' onClick={() => handleUpdateClick(item)}><i class="fa-solid fa-pen-to-square"></i></button></a>
-                                        </td>
-                                    </tr>
-                                );
-                            })}
-                        </tbody>
+                        {loading ? (
+                            <div>Loading....</div>
+                        ) : (
+                            <tbody>
+                                {posts.map((item, index) => {
+                                    return (
+                                        <tr key={item._id}>
+                                            <td>{index + 1}</td>
+                                            <td>{options.find(option => option.id === item.vCatId)?.label || 'Unknown'}</td>
+                                            <td>
+                                                {item.isTrending && 'Trending'}
+                                                {item.isTrending && item.isPremium && ' / '}
+                                                {item.isPremium && 'Premium'}
+                                            </td>
+                                            <td className='text-start'><pre className='post-vdescription-data'>{JSON.stringify(item.vDiscription, null, 2)}</pre></td>
+                                            <td>
+                                                {item.vThumbImage && <img crossOrigin="anonymous" src={`http://143.244.139.153:5000/${item.vThumbImage}`} alt="Thumb" style={{ width: '100px', height: 'auto' }} />}
+                                            </td>
+                                            <td>
+                                                {item.vOriginalImage && <img crossOrigin="anonymous" src={`http://143.244.139.153:5000/${item.vOriginalImage}`} alt="Original" style={{ width: '100px', height: 'auto' }} />}
+                                            </td>
+                                            <td>
+                                                <button className='btn btn-danger mx-2 px-3 mb-3' onClick={() => handleDelete(item._id)}><i class="fa-solid fa-trash"></i></button>
+                                                <a href='#postform'><button className='btn btn-success mx-2 px-3' onClick={() => handleUpdateClick(item)}><i class="fa-solid fa-pen-to-square"></i></button></a>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        )}
+
                     </table>
                 </div>
             </div>
