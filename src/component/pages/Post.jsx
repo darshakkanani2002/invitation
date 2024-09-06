@@ -136,10 +136,10 @@ export default function Post({ vTemplateId: _id }) {
         e.preventDefault();
         setLoading(true);
 
-        if (!postData.vCatId) {
-            alert('Category is required. Please select a category.');
-            return;
-        }
+        // if (!postData.vCatId) {
+        //     alert('Category is required. Please select a category.');
+        //     return;
+        // }
 
         let vDiscription;
         try {
@@ -152,6 +152,7 @@ export default function Post({ vTemplateId: _id }) {
             alert('Invalid JSON format for vDiscription. Please correct it and try again.');
             return;
         }
+        const catId = postData.vCatId || selectedCategory?.id
 
         const data = {
             vThumbImage: postData.vThumbImage,
@@ -159,6 +160,7 @@ export default function Post({ vTemplateId: _id }) {
             isTrending: postData.isTrending,
             vDiscription: vDiscription,
         };
+
 
         try {
             let response;
@@ -206,7 +208,7 @@ export default function Post({ vTemplateId: _id }) {
             }
 
             // Fetch the updated data
-            fetchData(postData.vCatId);
+            fetchData(catId);
         } catch (error) {
             console.error('Error submitting data:', error.response ? error.response.data : error.message);
         } finally {
@@ -257,7 +259,7 @@ export default function Post({ vTemplateId: _id }) {
             vDiscription: JSON.stringify(post.vDiscription, null, 2),
             vCatId: post.vCatId,
         });
-        setSelectedCategory(options.find(option => option.id === post.vCatId));
+
     };
 
     return (
