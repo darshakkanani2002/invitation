@@ -279,7 +279,7 @@ export default function Post({ vTemplateId: _id }) {
                 transition:Bounce
             />
             {/* Post Data and Form Code */}
-            <div className='container mx-auto mt-5'>
+            <div className='container mx-auto category-form'>
                 <form onSubmit={handleSubmit} id='postform'>
                     <div className='row border border-dark px-3 py-3 post-form'>
                         <div className='col-lg-12'>

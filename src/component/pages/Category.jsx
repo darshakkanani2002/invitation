@@ -132,7 +132,7 @@ export default function Category({ vCatId: _id }) {
                     transition:Bounce
                 />
 
-                <form onSubmit={handleSubmit} className="category-form d-flex justify-content-center mt-5">
+                <form onSubmit={handleSubmit} className="category-form d-flex justify-content-center">
                     <div className='row border p-3'>
                         <div className='col-lg-12 mb-3'>
                             <label htmlFor="category" className="form-label">Category Name</label>

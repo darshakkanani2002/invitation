@@ -33,7 +33,7 @@
 }
 
 .side-menu li a:hover,
-.side-menu li.active>a {
+.side-menu li.active>.nav-link {
     background-color: #495057;
     color: #fff;
 }

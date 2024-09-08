@@ -22,6 +22,10 @@
   width: 100%;
   background-color: #fff;
   box-shadow: 0px 6px 15px 0px #d8d8d8;
+  position: fixed;
+  width: 100%;
+  z-index: 999;
+  top: 0;
 }
 
 /* Main content css */
@@ -54,6 +58,10 @@ td {
 }
 
 /*  */
+.category-form {
+  padding-top: 100px !important;
+}
+
 .category-select-icon {
   height: 90px;
   width: 90px;
